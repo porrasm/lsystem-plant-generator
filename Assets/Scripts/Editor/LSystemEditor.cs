@@ -4,18 +4,19 @@ using UnityEditor;
 using UnityEngine;
 
 namespace Default {
-    [CustomEditor(typeof(LSystem)), CanEditMultipleObjects]
+    [CustomEditor(typeof(LSystemConfiguration)), CanEditMultipleObjects]
     public class PlantSettingsEditor : Editor {
 
         #region fields
-        private LSystem lsystem;
-
-        public HashSet<object> MenuFolds { get; set; } = new HashSet<object>();
-
-        private bool varianceFold;
-
-        private long lastGenerateTime;
-        private static int cycleIndex;
+        private LSystemConfiguration lsystem;
+        public LSystemConfiguration LSystem {
+            get {
+                if (lsystem == null) {
+                    lsystem = (LSystemConfiguration)target;
+                }
+                return lsystem;
+            }
+        }
         #endregion
 
         public override void OnInspectorGUI() {
@@ -50,7 +51,6 @@ namespace Default {
 
         private void GrammarSettings() {
             CustomInspectorTools.CreateArea("Grammar settings");
-            // InspectorGUI.CreateBox();
             GrammarRules();
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Add character definition")) {
@@ -60,7 +60,6 @@ namespace Default {
                 LSystem.CharacterDefinitions.Clear();
             }
 
-            //  GUILayout.EndVertical();
             GUILayout.EndHorizontal();
             CustomInspectorTools.EndArea();
         }
@@ -92,7 +91,6 @@ namespace Default {
                 GUILayout.Label("Probability");
                 GUILayout.EndHorizontal();
                 for (int i = 0; i < rule.Rules.Count; i++) {
-                    ProbabilityRule probRule = rule.Rules[i];
                     RuleRow(rule, i);
                 }
 
@@ -116,10 +114,6 @@ namespace Default {
         }
         private void RuleRow(LSystemCharacterSetting charDef, int index) {
             GUILayout.BeginHorizontal();
-            //if (GUILayout.Button("Remove")) {
-            //    charDef.Rules.RemoveAt(index);
-            //}
-
             ProbabilityRule rule = charDef.Rules[index];
 
             string rString;
@@ -130,7 +124,7 @@ namespace Default {
                 if (GUILayout.Button("Remove")) {
                     charDef.Rules.RemoveAt(index);
                 }
-                //rule.Probability = InspectorGUI.FloatField("", rule.Probability, 0, 1);
+
                 GUILayout.ExpandWidth(true);
             } else if (detailedRuleEditMode == 0) {
                 rString = EditorGUILayout.TextField(rule.Rule);
@@ -148,14 +142,5 @@ namespace Default {
             GUILayout.EndHorizontal();
         }
         #endregion
-
-        public LSystem LSystem {
-            get {
-                if (lsystem == null) {
-                    lsystem = (LSystem)target;
-                }
-                return lsystem;
-            }
-        }
     }
 }
