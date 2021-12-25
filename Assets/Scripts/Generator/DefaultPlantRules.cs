@@ -5,23 +5,13 @@ using UnityEngine;
 namespace Default {
     public static class DefaultPlantRules {
         private const float angle = 25;
-        private static Transform reft;
-        private static Transform Reft {
-            get {
-                if (reft == null) {
-                    reft = GameObject.FindGameObjectWithTag("Player").transform;
-                }
-                return reft;
-            }
-        }
 
         public class Forward : ICharacterRule {
             public string Character => "f";
             public string Description => "Draw a line forward with some length and width";
 
             public void Apply(PlantDensityMap plant, PlantBranching<TurtleState> branching, ref TurtleState state) {
-                Reft.eulerAngles = state.EulerAngles;
-                Vector3 end = state.Position + (Reft.forward * state.LineLength);
+                Vector3 end = state.Position + (state.Forward * state.LineLength);
                 plant.DrawLine(state.Position, end, state.LineWidth);
                 Debug.DrawLine(state.Position, end);
                 state.Position = end;
@@ -48,9 +38,7 @@ namespace Default {
             public string Description => "Add X angle";
 
             public void Apply(PlantDensityMap plant, PlantBranching<TurtleState> branching, ref TurtleState state) {
-                Vector3 pos = state.EulerAngles;
-                pos.x = (pos.x + angle) % 360;
-                state.EulerAngles = pos;
+                state.Forward = state.Forward.Rotate(angle, Vector3.right);
             }
         }
         public class XAngleRemove : ICharacterRule {
@@ -58,9 +46,7 @@ namespace Default {
             public string Description => "Remove X angle";
 
             public void Apply(PlantDensityMap plant, PlantBranching<TurtleState> branching, ref TurtleState state) {
-                Vector3 pos = state.EulerAngles;
-                pos.x = (pos.x - angle) % 360;
-                state.EulerAngles = pos;
+                state.Forward = state.Forward.Rotate(-angle, Vector3.right);
             }
         }
         public class YAngleAdd : ICharacterRule {
@@ -68,9 +54,7 @@ namespace Default {
             public string Description => "Add Y angle";
 
             public void Apply(PlantDensityMap plant, PlantBranching<TurtleState> branching, ref TurtleState state) {
-                Vector3 pos = state.EulerAngles;
-                pos.y = (pos.y + angle) % 360;
-                state.EulerAngles = pos;
+                state.Forward = state.Forward.Rotate(angle, Vector3.up);
             }
         }
         public class YAngleRemove : ICharacterRule {
@@ -78,9 +62,7 @@ namespace Default {
             public string Description => "Remove Y angle";
 
             public void Apply(PlantDensityMap plant, PlantBranching<TurtleState> branching, ref TurtleState state) {
-                Vector3 pos = state.EulerAngles;
-                pos.y = (pos.y - angle) % 360;
-                state.EulerAngles = pos;
+                state.Forward = state.Forward.Rotate(-angle, Vector3.up);
             }
         }
     }

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Default {
     public struct TurtleState {
         public Vector3 Position;
-        public Vector3 EulerAngles;
+        public Vector3 Forward;
 
         public float LineLength;
         public float LineWidth;

@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Default {
     public class MeshGenerator3D {
         #region fields
+        public const bool FailIfUnknownRule = true;
         private Dictionary<string, ICharacterRule> rules;
         #endregion
 
@@ -43,15 +44,21 @@ namespace Default {
             TurtleState state = new TurtleState() {
                 LineLength = 1f,
                 LineWidth = 0.2f,
-                EulerAngles = new Vector3(90f, 0f, 0f)
+                Forward = Vector3.up
             };
             PlantBranching<TurtleState> branching = new PlantBranching<TurtleState>(() => stateStack.Push(state), (s) => stateStack.Push(s), stateStack.Pop);
 
             foreach (string rule in plantString.Split()) {
+                if (rule.Length == 0) {
+                    continue;
+                }
+
                 Logger.Log($"RUle: {rule}");
                 if (rules.TryGetValue(rule, out ICharacterRule characterRule)) {
                     Logger.Log(characterRule.Description);
                     characterRule.Apply(plant, branching, ref state);
+                } else if (FailIfUnknownRule) {
+                    throw new Exception($"Unknow rule encountered: {rule}");
                 }
             }
 

@@ -33,7 +33,7 @@ namespace Default {
         public static Mesh GenerateMesh(LSystemGrammar grammar, int iterations, bool useDefaultGenerationRules = true, ICharacterRule[] additionalRules = null) { 
             int[] plant = LSystem.Iterate(grammar, iterations);
             string plantString = grammar.ConvertToString(plant);
-
+            Logger.Log(plantString);
             MeshGenerator3D generator = new MeshGenerator3D(useDefaultGenerationRules, additionalRules);
             return generator.Generate(plantString);
         }

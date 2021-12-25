@@ -39,8 +39,7 @@ namespace Default {
         #endregion
 
         #region integer
-        public static int IntegerField(string label, int previousValue, int min = 0, int max = 0) {
-
+        public static int IntegerField(string label, int previousValue, int min = int.MinValue, int max = int.MaxValue) {
             GUILayout.BeginHorizontal();
             if (label.Length > 0) {
                 GUILayout.Label(label);
@@ -50,8 +49,7 @@ namespace Default {
 
             return Mathf.Clamp(newValue, min, max);
         }
-        public static int IntegerSlider(string label, int previousValue, int min = 0, int max = 0) {
-
+        public static int IntegerSlider(string label, int previousValue, int min = int.MinValue, int max = int.MaxValue) {
             GUILayout.BeginHorizontal();
             if (label.Length > 0) {
                 GUILayout.Label(label);
@@ -64,8 +62,7 @@ namespace Default {
         #endregion
 
         #region float
-        public static float FloatField(string label, float previousValue, float min = 0, float max = 0) {
-
+        public static float FloatField(string label, float previousValue, float min = float.MinValue, float max = float.MaxValue) {
             GUILayout.BeginHorizontal();
             if (label.Length > 0) {
                 GUILayout.Label(label);
@@ -75,8 +72,7 @@ namespace Default {
 
             return Mathf.Clamp(newValue, min, max);
         }
-        public static float FloatSlider(string label, float previousValue, float min = 0, float max = 0) {
-
+        public static float FloatSlider(string label, float previousValue, float min = float.MinValue, float max = float.MaxValue) {
             GUILayout.BeginHorizontal();
             if (label.Length > 0) {
                 GUILayout.Label(label);
@@ -90,7 +86,6 @@ namespace Default {
 
         #region string
         public static string TextField(string label, string previousValue, int maxLength = int.MaxValue) {
-
             GUILayout.BeginHorizontal();
             if (label.Length > 0) {
                 GUILayout.Label(label);
@@ -108,7 +103,6 @@ namespace Default {
             return newValue;
         }
         public static string TextArea(string label, string previousValue, int maxLength = int.MaxValue, bool horizontal = false) {
-
             if (horizontal) {
                 GUILayout.BeginHorizontal();
             }
@@ -135,7 +129,6 @@ namespace Default {
 
         #region other types
         public static bool BoolField(string label, bool previousValue) {
-
             GUILayout.BeginHorizontal();
             if (label.Length > 0) {
                 GUILayout.Label(label);
@@ -147,7 +140,6 @@ namespace Default {
         }
 
         public static Color ColorField(string label, Color previousValue) {
-
             GUILayout.BeginHorizontal();
             if (label.Length > 0) {
                 GUILayout.Label(label);
