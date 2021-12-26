@@ -16,6 +16,8 @@ namespace Default {
 
         public float LineLength;
         public float LineWidth;
+
+        public Color Color;
         #endregion
     }
 }

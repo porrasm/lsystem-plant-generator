@@ -9,7 +9,7 @@ namespace Default {
 
         #region fields
         public float Surface { get; set; }
-        protected float[] cube;
+        protected DensityPoint[] cube;
 
         /// <summary>
         /// Winding order of triangles use 2,1,0 or 0,1,2
@@ -25,7 +25,7 @@ namespace Default {
 
         public Marching(float surface = 0.5f) {
             Surface = surface;
-            cube = new float[8];
+            cube = new DensityPoint[8];
 
             if (Surface > 0) {
                 triangleOrder = new int[] { 0, 1, 2 };
@@ -68,7 +68,7 @@ namespace Default {
         /// <summary>
         /// MarchCube performs the Marching algorithm on a single cube
         /// </summary>
-        protected abstract void March(float x, float y, float z);
+        protected abstract void March(int x, int y, int z);
 
         /// <summary>
         /// GetOffset finds the approximate point of intersection of the surface

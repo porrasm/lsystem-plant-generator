@@ -17,7 +17,7 @@ namespace Default {
             PointDistance = 1.0f / pointsPerMeter;
         }
         
-        public void DrawLine(Vector3 start, Vector3 end, float thickness) {
+        public void DrawLine(Vector3 start, Vector3 end, Color c, float thickness) {
             Logger.Log($"Draw line from {start} to {end} with thickness {thickness}");
             Debug.DrawLine(start, end);
             Vector3Int[] indexes = GetIndexesAroundLine(start, end, thickness);
@@ -28,15 +28,16 @@ namespace Default {
                 if (PointDistanceFromLine(pos, start, end) is var distance && distance <= thickness) {
                     // do something
                     float value = 1 - Matht.Percentage(0, thickness, distance);
-                    AddPoint(index, value);
+                    AddPoint(index, value, c);
                 }
             }
         }
 
-        private void AddPoint(Vector3Int point, float value) {
+        private void AddPoint(Vector3Int point, float value, Color c) {
             Debug.DrawLine(point, point + Vector3.forward * 0.05f, Color.red);
             DensityPoint prev = Density[point];
             prev.Density = Mathf.Max(prev.Density, value);
+            prev.Color = c;
             Density[point] = prev;
         }
 

@@ -67,9 +67,9 @@ namespace Default {
         private Mesh GeneratePlantMesh(PlantDensityMap plant) {
             MarchingCubes marching = new MarchingCubes(0.5f);
             plant.Density.ExtendRanges();
-            float[,,] arr3D = plant.Density.To3DArray(out Vector3Int origo, (d) => d.Density);
+            DensityPoint[,,] arr3D = plant.Density.To3DArray(out Vector3Int origo, (d) => d);
 
-            MarchingState state = new MarchingState(new Array3D<float>(arr3D), plant.PointDistance);
+            MarchingState state = new MarchingState(new Array3D<DensityPoint>(arr3D), plant.PointDistance);
             marching.Generate(state);
 
             return state.BuildMesh();

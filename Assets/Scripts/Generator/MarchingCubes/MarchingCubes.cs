@@ -10,10 +10,12 @@ namespace Default {
         #region fields
         int flagIndex, edgeFlags;
         private Vector3[] edgeVertex;
+        private Color[] vertexColors;
         #endregion
 
         public MarchingCubes(float surface = 0.5f) : base(surface) {
             edgeVertex = new Vector3[12];
+            vertexColors = new Color[12];
         }
 
         #region march
@@ -21,7 +23,7 @@ namespace Default {
         /// <summary>
         /// MarchCube performs the Marching Cubes algorithm on a single cube
         /// </summary>
-        protected override void March(float x, float y, float z) {
+        protected override void March(int x, int y, int z) {
             CalculateFlags();
 
             // If the cube is entirely inside or outside of the surface, then there will be no intersections
@@ -38,7 +40,7 @@ namespace Default {
 
             // Find which vertices are inside of the surface and which are outside
             for (int i = 0; i < 8; i++) {
-                if (VoxelIsActive(cube[i])) {
+                if (VoxelIsActive(cube[i].Density)) {
                     flagIndex |= 1 << i;
                 }
             }
@@ -47,15 +49,16 @@ namespace Default {
             edgeFlags = CubeEdgeFlags[flagIndex];
         }
 
-        private void FindIntersectingEdges(float x, float y, float z) {
+        private void FindIntersectingEdges(int x, int y, int z) {
 
             // Find the point of intersection of the surface with each edge
             for (int i = 0; i < 12; i++) {
 
                 // Check if there is an intersection on this edge
                 if ((edgeFlags & (1 << i)) != 0) {
-                    float offset = GetOffset(cube[EdgeConnection[i, 0]], cube[EdgeConnection[i, 1]]);
+                    float offset = GetOffset(cube[EdgeConnection[i, 0]].Density, cube[EdgeConnection[i, 1]].Density);
 
+                    vertexColors[i] = state.Values[x, y, z].Color;
                     edgeVertex[i].x = x + (VertexOffset[EdgeConnection[i, 0], 0] + offset * EdgeDirection[i, 0]);
                     edgeVertex[i].y = y + (VertexOffset[EdgeConnection[i, 0], 1] + offset * EdgeDirection[i, 1]);
                     edgeVertex[i].z = z + (VertexOffset[EdgeConnection[i, 0], 2] + offset * EdgeDirection[i, 2]);
@@ -77,6 +80,7 @@ namespace Default {
 
                     state.AddVertex(edgeVertex[vert]);
                     state.AddTriangle(idx + triangleOrder[j]);
+                    state.AddColor(vertexColors[vert]);
                 }
             }
         }

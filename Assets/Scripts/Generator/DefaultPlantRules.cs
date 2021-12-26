@@ -10,7 +10,7 @@ namespace Default {
 
             public void Apply(PlantDensityMap plant, PlantBranching<TurtleState> branching, ref TurtleState state) {
                 Vector3 end = state.Position + (state.Forward * state.Settings.LineLength);
-                plant.DrawLine(state.Position, end, state.Settings.LineWidth);
+                plant.DrawLine(state.Position, end, state.Settings.Color, state.Settings.LineWidth);
                 Debug.DrawLine(state.Position, end);
                 state.Position = end;
             }
