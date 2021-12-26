@@ -1,0 +1,22 @@
+// Configuration values
+LSystemConfigurer:
+	primary: LSystemConfiguration
+	references: LSystemBank[]
+
+	RecursiveLSystem BuildLSystem()
+
+LSystemBank:
+	systems: LSystemConfiguration[]
+
+LSystemConfiguration:
+	- values
+
+// Runtime values
+
+RecurisveLSystem
+	primary: LSystemGrammar
+
+LSystemIterator
+
+LSystem:
+	Iterate()

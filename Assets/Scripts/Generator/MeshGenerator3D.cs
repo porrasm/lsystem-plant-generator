@@ -32,19 +32,18 @@ namespace Default {
         }
 
         #region generate
-        public Mesh Generate(string plantString) {
-            PlantDensityMap plant = GeneratePlantRepresentation(plantString);
+        public Mesh Generate(string plantString, PlantGeneratorSettings3D initialSettings, int pointsPerMeter) {
+            PlantDensityMap plant = GeneratePlantRepresentation(plantString, initialSettings, pointsPerMeter);
             return GeneratePlantMesh(plant);
         }
 
-        private PlantDensityMap GeneratePlantRepresentation(string plantString) {
-            PlantDensityMap plant = new PlantDensityMap(10);
+        private PlantDensityMap GeneratePlantRepresentation(string plantString, PlantGeneratorSettings3D initialSettings, int pointsPerMeter) {
+            PlantDensityMap plant = new PlantDensityMap(pointsPerMeter);
             Stack<TurtleState> stateStack = new Stack<TurtleState>();
 
             TurtleState state = new TurtleState() {
-                LineLength = 1f,
-                LineWidth = 0.2f,
-                Forward = Vector3.up
+                Forward = Vector3.up,
+                Settings = initialSettings
             };
             PlantBranching<TurtleState> branching = new PlantBranching<TurtleState>(() => stateStack.Push(state), (s) => stateStack.Push(s), stateStack.Pop);
 
@@ -70,7 +69,7 @@ namespace Default {
             plant.Density.ExtendRanges();
             float[,,] arr3D = plant.Density.To3DArray(out Vector3Int origo, (d) => d.Density);
 
-            MarchingState state = new MarchingState(new Array3D<float>(arr3D));
+            MarchingState state = new MarchingState(new Array3D<float>(arr3D), plant.PointDistance);
             marching.Generate(state);
 
             return state.BuildMesh();

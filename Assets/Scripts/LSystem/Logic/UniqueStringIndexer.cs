@@ -9,6 +9,10 @@ namespace Default {
         private Dictionary<string, int> rules = new Dictionary<string, int>();
         #endregion
 
+        public int this[string s] {
+            get => rules[s];
+        }
+
         public int SetAndGetIndex(string s) {
             if (rules.ContainsKey(s)) {
                 return rules[s];
@@ -19,5 +23,13 @@ namespace Default {
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         public IEnumerator<KeyValuePair<string, int>> GetEnumerator() => rules.GetEnumerator();
+
+        public Dictionary<int, string> BuildTranslationTable() {
+            Dictionary<int, string> table = new Dictionary<int, string>();
+            foreach (KeyValuePair<string, int> kvp in rules) { 
+                table.Add(kvp.Value, kvp.Key);
+            }
+            return table;
+        }
     }
 }

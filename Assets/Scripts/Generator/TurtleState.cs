@@ -7,7 +7,6 @@ namespace Default {
         public Vector3 Position;
         public Vector3 Forward;
 
-        public float LineLength;
-        public float LineWidth;
+        public PlantGeneratorSettings3D Settings;
     }
 }

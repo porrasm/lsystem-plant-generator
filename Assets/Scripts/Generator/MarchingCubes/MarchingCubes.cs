@@ -70,13 +70,13 @@ namespace Default {
                 if (TriangleConnectionTable[flagIndex, 3 * i] < 0)
                     break;
 
-                int idx = state.Vertices.Count;
+                int idx = state.VertexCount;
 
                 for (int j = 0; j < 3; j++) {
                     int vert = TriangleConnectionTable[flagIndex, 3 * i + j];
 
-                    state.Vertices.Add(edgeVertex[vert]);
-                    state.Triangles.Add(idx + triangleOrder[j]);
+                    state.AddVertex(edgeVertex[vert]);
+                    state.AddTriangle(idx + triangleOrder[j]);
                 }
             }
         }

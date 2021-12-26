@@ -10,42 +10,47 @@ namespace Default {
         private const char SPLITTER_CHAR = ' ';
         public int[] Axiom { get; private set; }
 
-        private UniqueStringIndexer indexer;
-        private LSystemCharacter[] characters;
+        private Dictionary<int, LSystemCharacter> characters;
         #endregion
 
         #region constructor old
         // inefficient but soon deprecated anyway, no support for aliases
-        public LSystemGrammar(string axiom, LSystemCharacterSetting[] commands) {
-            indexer = new UniqueStringIndexer();
+        // EL SPAGHETTO!! PLEASO FIXO! REQUIRO REFACTORO OF INPUT TYPE!
+        public LSystemGrammar(UniqueStringIndexer indexer, string axiom, LSystemCharacterSetting[] commands) {
+            if (axiom == null || axiom.Length == 0) {
+                throw new System.Exception("Axiom cannot be null or empty");
+            }
 
-            HandleString(axiom);
+            UniqueStringIndexer localIndexer = new UniqueStringIndexer();
+
+            RegisterStringIndex(axiom);
             foreach (LSystemCharacterSetting command in commands) {
                 Logger.Log($"Command: {command.Command}");
-                HandleString(command.Command);
+                RegisterStringIndex(command.Command);
                 foreach (ProbabilityRule r in command.Rules) {
                     Logger.Log($"    Rule: {r.Rule}");
-                    HandleString(r.Rule);
+                    RegisterStringIndex(r.Rule);
                 }
             }
 
-            characters = new LSystemCharacter[indexer.UniqueCount];
+            characters = new Dictionary<int, LSystemCharacter>();
 
-            foreach (var charIndex in indexer) {
+            foreach (KeyValuePair<string, int> localCharIndex in localIndexer) {
+                int charIndex = indexer[localCharIndex.Key];
                 try {
                     // is command
-                    LSystemCharacterSetting command = commands.First(c => c.Command.Equals(charIndex.Key));
+                    LSystemCharacterSetting command = commands.First(c => c.Command.Equals(localCharIndex.Key));
 
-                    LSystemCharacter character = new LSystemCharacter(charIndex.Key, charIndex.Value, command.Rules.Select(r => {
+                    LSystemCharacter character = new LSystemCharacter(localCharIndex.Key, charIndex, command.Rules.Select(r => {
                         int[] ruleString = r.Rule.Split(SPLITTER_CHAR).Where(s => s.Length > 0).Select(s => indexer.SetAndGetIndex(s)).ToArray();
                         return new LSystemRule(r.Probability, ruleString);
                     }).ToArray());
 
-                    characters[charIndex.Value] = character;
+                    characters.Add(charIndex, character);
                 } catch (System.Exception e) {
                     // not command, by default does not change in iteration
-                    LSystemCharacter character = new LSystemCharacter(charIndex.Key, charIndex.Value, new LSystemRule(0, charIndex.Value));
-                    characters[charIndex.Value] = character;
+                    LSystemCharacter character = new LSystemCharacter(localCharIndex.Key, charIndex, new LSystemRule(0, charIndex));
+                    characters.Add(charIndex, character);
                 }
             }
 
@@ -55,12 +60,13 @@ namespace Default {
             }
             Axiom = axiomlist.ToArray();
 
-            void HandleString(string str) {
+            void RegisterStringIndex(string str) {
                 foreach (string word in str.Split(SPLITTER_CHAR).Where(s => s.Length > 0)) {
                     if (word.Length == 0) {
                         continue;
                     }
 
+                    localIndexer.SetAndGetIndex(word);
                     indexer.SetAndGetIndex(word);
                 }
             }
@@ -97,12 +103,10 @@ namespace Default {
         }
 
         private bool GetCharacter(int literal, out LSystemCharacter character) {
-            if (literal >= characters.Length) {
-                character = default;
-                return false;
+            if (characters.TryGetValue(literal, out character)) {
+                return true;
             }
-            character = characters[literal];
-            return true;
+            return false;
         }
     }
 }

@@ -59,6 +59,35 @@ namespace Default {
 
             return Mathf.Clamp(newValue, min, max);
         }
+        public static int PositiveIntegerSliderWithArbitraryChoice(string label, string warning, ref bool toggle, int previousValue, int max = int.MaxValue) {
+            GUILayout.BeginHorizontal();
+            if (label.Length > 0) {
+                GUILayout.Label(label);
+            }
+            int newValue;
+            if (previousValue >= max || toggle) {
+                toggle = true;
+                newValue = EditorGUILayout.IntField(previousValue);
+                GUILayout.EndHorizontal();
+                if (warning.Length > 0) {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label(warning);
+                    if (GUILayout.Button("Reset")) {
+                        newValue = 0;
+                    }
+                    GUILayout.EndHorizontal();
+                }
+            } else {
+                newValue = EditorGUILayout.IntSlider(previousValue, 0, max);
+                GUILayout.EndHorizontal();
+            }
+
+            if (newValue <= 0) {
+                toggle = false;
+            }
+
+            return Mathf.Clamp(newValue, 0, int.MaxValue);
+        }
         #endregion
 
         #region float
