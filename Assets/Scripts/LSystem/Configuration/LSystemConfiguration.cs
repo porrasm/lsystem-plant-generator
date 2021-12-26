@@ -9,22 +9,22 @@ namespace Default {
     public class LSystemConfiguration {
         #region fields
         [field: SerializeField]
-        public string LSystemName { get; set; }
+        public string LSystemName { get; set; } = "name";
 
         [field: SerializeField]
-        public string Axiom { get; set; }
+        public string Axiom { get; set; } = "f";
 
         [field: SerializeField]
-        public bool UseSeed { get; set; }
+        public bool UseSeed { get; set; } = false;
 
         [field: SerializeField]
         public int Seed { get; set; }
 
         [field: SerializeField]
-        public int Iterations { get; set; }
+        public int Iterations { get; set; } = 1;
 
         [field: SerializeField]
-        public bool CaseSensitive { get; set; }
+        public bool CaseSensitive { get; set; } = false;
 
         [field: SerializeField]
         public List<LSystemCharacterSetting> CharacterDefinitions { get; set; }

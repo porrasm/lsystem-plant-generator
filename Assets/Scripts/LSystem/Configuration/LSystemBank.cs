@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Default {
+    [DisallowMultipleComponent]
     public class LSystemBank : MonoBehaviour {
         #region fields
         [field: SerializeField]

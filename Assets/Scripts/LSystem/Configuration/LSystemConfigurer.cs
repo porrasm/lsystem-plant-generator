@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 
 namespace Default {
+    [DisallowMultipleComponent]
     public class LSystemConfigurer : MonoBehaviour {
         #region fields
         [field: SerializeField]
@@ -15,7 +16,7 @@ namespace Default {
         #endregion
 
         public ExtendedLSystem BuildLSystem() {
-            return new ExtendedLSystem(PrimaryLSystem, SubSystems.SelectMany(s => s.LSystems).ToArray());
+            return new ExtendedLSystem(PrimaryLSystem, SubSystems.Where(s => s != null).SelectMany(s => s.LSystems).ToArray());
         }
     }
 }

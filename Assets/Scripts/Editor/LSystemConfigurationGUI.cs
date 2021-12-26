@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Default {
     public class LSystemConfigurationGUI {
         #region fields
+        public bool Fold;
         private bool isPrimary;
         private bool iterationToggle;
         public LSystemConfiguration LSystem { get; private set; }

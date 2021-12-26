@@ -4,6 +4,7 @@ using System.Threading;
 using UnityEngine;
 
 namespace Default {
+    [DisallowMultipleComponent]
     public class PlantCreator3D : MonoBehaviour {
         #region fields
         [field: SerializeField]
