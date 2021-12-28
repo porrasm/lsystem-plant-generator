@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -52,6 +53,15 @@ namespace Default {
             } else {
                 return val;
             }
+        }
+
+        public static Color Interpolate(Color start, Color end, float t, Func<float, float> curve) {
+            float newT = curve(t);
+            float r = Lerp(start.r, end.r, newT);
+            float g = Lerp(start.g, end.g, newT);
+            float b = Lerp(start.b, end.b, newT);
+            float a = Lerp(start.a, end.a, newT);
+            return new Color(r, g, b, a);
         }
     }
 }

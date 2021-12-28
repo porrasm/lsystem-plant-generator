@@ -52,7 +52,7 @@ namespace Default {
             public string Description => "Add Y angle";
 
             public void Apply(PlantDensityMap plant, PlantBranching<TurtleState> branching, ref TurtleState state) {
-                state.Forward = state.Forward.Rotate(state.Settings.AngleY, Vector3.up);
+                state.Forward = state.Forward.Rotate(state.Settings.AngleY, Vector3.forward);
             }
         }
         public class YAngleRemove : ICharacterRule {
@@ -60,7 +60,7 @@ namespace Default {
             public string Description => "Remove Y angle";
 
             public void Apply(PlantDensityMap plant, PlantBranching<TurtleState> branching, ref TurtleState state) {
-                state.Forward = state.Forward.Rotate(-state.Settings.AngleY, Vector3.up);
+                state.Forward = state.Forward.Rotate(-state.Settings.AngleY, Vector3.forward);
             }
         }
     }

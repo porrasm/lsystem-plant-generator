@@ -16,14 +16,14 @@ namespace Default {
             PointsPerMeter = pointsPerMeter;
             PointDistance = 1.0f / pointsPerMeter;
         }
-        
+
         public void DrawLine(Vector3 start, Vector3 end, Color c, float thickness) {
             Logger.Log($"Draw line from {start} to {end} with thickness {thickness}");
             Debug.DrawLine(start, end);
             Vector3Int[] indexes = GetIndexesAroundLine(start, end, thickness);
             foreach (Vector3Int index in indexes) {
-               // AddPoint(index, 1);
-               // continue;
+                // AddPoint(index, 1);
+                // continue;
                 Vector3 pos = PositionFromIndex(index);
                 if (PointDistanceFromLine(pos, start, end) is var distance && distance <= thickness) {
                     // do something
@@ -33,8 +33,11 @@ namespace Default {
             }
         }
 
-        private void AddPoint(Vector3Int point, float value, Color c) {
-            Debug.DrawLine(point, point + Vector3.forward * 0.05f, Color.red);
+        public void AddPoint(Vector3Int point, float value, Color c) {
+            Vector3 debugPoint = point;
+            debugPoint *= 0.2f;
+            debugPoint += new Vector3Int(5, 0, 5);
+            Debug.DrawLine(debugPoint, debugPoint + Vector3.forward * 0.1f, Matht.Interpolate(new Color(0.5f, 0, 0, 1), Color.green, value, v => v));
             DensityPoint prev = Density[point];
             prev.Density = Mathf.Max(prev.Density, value);
             prev.Color = c;
@@ -89,6 +92,16 @@ namespace Default {
         }
         public Vector3 PositionFromIndex(Vector3Int index) {
             return new Vector3(PointDistance * index.x, PointDistance * index.y, PointDistance * index.z);
+        }
+
+        public Mesh GenerateMesh() {
+            MarchingCubes marching = new MarchingCubes(0.5f);
+            DensityPoint[,,] arr3D = Density.To3DArray(out Vector3Int origo, (d) => d);
+
+            MarchingState state = new MarchingState(new Array3D<DensityPoint>(arr3D), PointDistance);
+            marching.Generate(state);
+
+            return state.BuildMesh();
         }
     }
 }

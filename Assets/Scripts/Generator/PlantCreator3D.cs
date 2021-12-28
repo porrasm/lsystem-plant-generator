@@ -30,7 +30,7 @@ namespace Default {
         #endregion
 
         private void Start() {
-            if (GenerateOnStart) { 
+            if (GenerateOnStart) {
                 SetAndGenerateMesh();
             }
         }
@@ -43,7 +43,7 @@ namespace Default {
 
         #region generation
         public Mesh GenerateMesh() {
-           return GenerateMesh(LSystemConf.BuildLSystem(), InitialSettings, VerticesPerMeter, MaxLSystemRecursionLevel);
+            return GenerateMesh(LSystemConf.BuildLSystem(), InitialSettings, VerticesPerMeter, MaxLSystemRecursionLevel);
         }
 
         public void SetAndGenerateMesh() {
@@ -55,8 +55,31 @@ namespace Default {
             string plantString = lsystem.BuildString(maxRecursionLevel);
             Logger.LogVariables("plantString", plantString);
             MeshGenerator3D generator = new MeshGenerator3D(useDefaultGenerationRules, additionalRules);
+            return CircleMap(1, 0.5f).GenerateMesh();
             return generator.Generate(plantString, initialSettings, verticesPerMeter);
         }
         #endregion
+
+        private static PlantDensityMap CircleMap(float radius, float surface) {
+            PlantDensityMap plant = new PlantDensityMap(10);
+            radius *= plant.PointsPerMeter;
+            int max = (int)Mathf.Ceil(2 * radius);
+
+            Vector3 center = new Vector3(radius, radius, radius);
+            float maxDistance = radius * Mathf.Sqrt(2);
+
+            for (int x = 0; x <= max; x++) {
+                for (int y = 0; y <= max; y++) {
+                    for (int z = 0; z <= max; z++) {
+                        Vector3 pos = new Vector3(x, y, z);
+                        float dis = Vector3.Distance(pos, center);
+                        float perc = 1 - Matht.Percentage(0, maxDistance, dis);
+                        plant.AddPoint(new Vector3Int(x, y, z), perc, Color.red);
+                    }
+                }
+            }
+
+            return plant;
+        }
     }
 }

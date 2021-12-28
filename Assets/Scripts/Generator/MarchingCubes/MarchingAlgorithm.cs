@@ -27,7 +27,7 @@ namespace Default {
             Surface = surface;
             cube = new DensityPoint[8];
 
-            if (Surface > 0) {
+            if (Surface >= 0) {
                 triangleOrder = new int[] { 0, 1, 2 };
             } else {
                 triangleOrder = new int[] { 2, 1, 0 };

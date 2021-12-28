@@ -17,15 +17,7 @@ namespace Default {
 
         private Dictionary<int, string> translation;
 
-        private struct QueuedLSystem {
-            public LSystemGrammar Grammar;
-            public int Iterations;
 
-            public QueuedLSystem(LSystemGrammar grammar, int iterations) {
-                Grammar = grammar;
-                Iterations = iterations;
-            }
-        }
 
         public struct LSystemResult {
             public List<int> Result;
@@ -79,24 +71,28 @@ namespace Default {
         public string BuildString(int maxRecursionLevel) {
             maxRecursionLevel = Mathf.Max(0, maxRecursionLevel);
             List<int> result = new List<int>();
-            BuildList(result, 0, maxRecursionLevel, new QueuedLSystem(grammars[PRIMARY_LSYSTEM_NAME], referenceSystems[PRIMARY_LSYSTEM_NAME].Iterations));
+            BuildList(result, 0, maxRecursionLevel, referenceSystems[PRIMARY_LSYSTEM_NAME]);
             Logger.LogVariables("LSystem literal count", result.Count);
             return string.Join(" ", result.Select(lit => translation[lit]));
         }
 
-        private void BuildList(List<int> result, int depth, int maxDepth, QueuedLSystem lsystem) {
+        private void BuildList(List<int> result, int depth, int maxDepth, LSystemConfiguration lsystem) {
             if (depth > maxDepth) {
                 return;
             }
-            int[] lsystemResult = LSystem.Iterate(lsystem.Grammar, lsystem.Iterations);
+
+            int[] lsystemResult = RNG.Seeded(lsystem.UseSeed, lsystem.Seed, () => LSystem.Iterate(GetIterator(lsystem)));
+
             foreach (int literal in lsystemResult) {
                 if (LiteralIsSubsystem(literal, out LSystemConfiguration subSystem)) {
-                    BuildList(result, depth + 1, maxDepth, new QueuedLSystem(grammars[subSystem.LSystemName], subSystem.Iterations));
+                    BuildList(result, depth + 1, maxDepth, subSystem);
                     continue;
                 }
                 result.Add(literal);
             }
         }
+
+        private LSystem.Iterator GetIterator(LSystemConfiguration lsystem) => new LSystem.Iterator(grammars[lsystem.LSystemName], lsystem.Iterations);
 
         private bool LiteralIsSubsystem(int literal, out LSystemConfiguration subSystem) {
             string s = translation[literal];

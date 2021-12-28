@@ -15,6 +15,9 @@ namespace Default {
         }
 
         #region iterations
+        public static int[] Iterate(Iterator i) {
+            return Iterate(i.Grammar, i.Iterations);
+        }
         public static int[] Iterate(LSystemGrammar grammar, int iterationCount) {
             Logger.Log($"LSystem iterate {iterationCount}");
             List<int> iteration = new List<int>(grammar.Axiom);
@@ -24,5 +27,15 @@ namespace Default {
             return iteration.ToArray();
         }
         #endregion
+
+        public struct Iterator {
+            public LSystemGrammar Grammar;
+            public int Iterations;
+
+            public Iterator(LSystemGrammar grammar, int iterations) {
+                Grammar = grammar;
+                Iterations = iterations;
+            }
+        }
     }
 }

@@ -11,6 +11,22 @@ namespace Default {
             rnd = new Xorshift128(poorRnd.Next(), poorRnd.Next(), poorRnd.Next(), poorRnd.Next());
         }
 
+        public static T Seeded<T>(bool useSeed, int seed, Func<T> cb) {
+            if (useSeed) {
+                return Seeded(seed, cb);
+            } else {
+                return cb();
+            }
+        }
+
+        public static void Seeded(bool useSeed, int seed, Action cb) {
+            if (useSeed) {
+                Seeded(seed, cb);
+            } else {
+                cb?.Invoke();
+            }
+        }
+
         public static void Seeded(int seed, Action cb) {
             UnityEngine.Random.State old = UnityEngine.Random.state;
             var old2 = rnd.GetState();
@@ -22,6 +38,21 @@ namespace Default {
             Logger.Log("Reset seed");
             UnityEngine.Random.state = old;
             rnd.SetState(old2);
+        }
+
+        public static T Seeded<T>(int seed, Func<T> cb) {
+            UnityEngine.Random.State old = UnityEngine.Random.state;
+            var old2 = rnd.GetState();
+
+            rnd.SetSeed(seed);
+            UnityEngine.Random.InitState(seed);
+            T val = cb();
+
+            Logger.Log("Reset seed");
+            UnityEngine.Random.state = old;
+            rnd.SetState(old2);
+
+            return val;
         }
 
         //public static void SetSeed(int seed) {

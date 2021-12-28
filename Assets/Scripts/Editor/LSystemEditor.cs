@@ -33,6 +33,9 @@ namespace Default {
         #endregion
 
         public override void OnInspectorGUI() {
+            if (LSystem.PrimaryLSystem == null) {
+                LSystem.PrimaryLSystem = new LSystemConfiguration();
+            }
             GUI.CreateGUI();
             CustomInspectorTools.CreateFoldedArea("External L-system references", ref bankFold);
             if (bankFold) {

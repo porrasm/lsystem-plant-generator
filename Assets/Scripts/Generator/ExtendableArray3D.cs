@@ -13,6 +13,10 @@ namespace Default {
         private Vector2Int yRange;
         private Vector2Int zRange;
 
+        private Vector2Int ExtendX => new Vector2Int(xRange.x - 1, xRange.y + 1);
+        private Vector2Int ExtendY => new Vector2Int(yRange.x - 1, yRange.y + 1);
+        private Vector2Int ExtendZ => new Vector2Int(zRange.x - 1, zRange.y + 1);
+
         public int CountX => xRange.y - xRange.x;
         public int CountY => yRange.y - yRange.x;
         public int CountZ => zRange.y - zRange.x;
@@ -50,15 +54,6 @@ namespace Default {
             }
         }
 
-        public void ExtendRanges() {
-            xRange.x--;
-            xRange.y++;
-            yRange.x--;
-            yRange.y++;
-            zRange.x--;
-            zRange.y++;
-        }
-
         private void UpdateBounds(Vector3Int index) {
             xRange.x = Math.Min(xRange.x, index.x);
             xRange.y = Math.Max(xRange.y, index.x);
@@ -71,11 +66,16 @@ namespace Default {
         }
 
         public B[,,] To3DArray<B>(out Vector3Int origo, Func<T, B> transformation) {
+            Vector2Int xRange = ExtendX;
+            Vector2Int yRange = ExtendY;
+            Vector2Int zRange = ExtendZ;
+
             Logger.LogVariables("xr", xRange);
             Logger.LogVariables("yr", yRange);
             Logger.LogVariables("zr", zRange);
 
-            B[,,] result = new B[CountX + 1, CountY + 1, CountZ + 1];
+            // +1 from <=, +2 from extend
+            B[,,] result = new B[CountX + 3, CountY + 3, CountZ + 3];
 
             origo = new Vector3Int(-xRange.x, -yRange.x, -zRange.x);
 

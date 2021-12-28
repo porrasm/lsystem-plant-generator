@@ -34,7 +34,7 @@ namespace Default {
         #region generate
         public Mesh Generate(string plantString, PlantGeneratorSettings3D initialSettings, int pointsPerMeter) {
             PlantDensityMap plant = GeneratePlantRepresentation(plantString, initialSettings, pointsPerMeter);
-            return GeneratePlantMesh(plant);
+            return plant.GenerateMesh();
         }
 
         private PlantDensityMap GeneratePlantRepresentation(string plantString, PlantGeneratorSettings3D initialSettings, int pointsPerMeter) {
@@ -62,17 +62,6 @@ namespace Default {
             }
 
             return plant;
-        }
-
-        private Mesh GeneratePlantMesh(PlantDensityMap plant) {
-            MarchingCubes marching = new MarchingCubes(0.5f);
-            plant.Density.ExtendRanges();
-            DensityPoint[,,] arr3D = plant.Density.To3DArray(out Vector3Int origo, (d) => d);
-
-            MarchingState state = new MarchingState(new Array3D<DensityPoint>(arr3D), plant.PointDistance);
-            marching.Generate(state);
-
-            return state.BuildMesh();
         }
         #endregion
 
