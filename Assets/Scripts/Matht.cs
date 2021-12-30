@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Default {
@@ -62,6 +63,14 @@ namespace Default {
             float b = Lerp(start.b, end.b, newT);
             float a = Lerp(start.a, end.a, newT);
             return new Color(r, g, b, a);
+        }
+
+        public static Color ParseColor(string s) {
+            int v = Convert.ToInt32(s, 16);
+            int r = (v >> 16) & 255;
+            int g = (v >> 8) & 255;
+            int b = v & 255;
+            return new Color32((byte)r, (byte)g, (byte)b, 255);
         }
     }
 }

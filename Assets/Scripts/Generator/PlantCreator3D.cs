@@ -55,7 +55,7 @@ namespace Default {
             string plantString = lsystem.BuildString(maxRecursionLevel);
             Logger.LogVariables("plantString", plantString);
             MeshGenerator3D generator = new MeshGenerator3D(useDefaultGenerationRules, additionalRules);
-            return CircleMap(1, 0.5f).GenerateMesh();
+            //return CircleMap(1, 0.5f).GenerateMesh();
             return generator.Generate(plantString, initialSettings, verticesPerMeter);
         }
         #endregion

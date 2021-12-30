@@ -2,6 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Default.CommandParser;
+using System.Text.RegularExpressions;
+using System.Linq;
+using System.Text;
 
 namespace Default {
     public class MeshGenerator3D {
@@ -47,7 +51,7 @@ namespace Default {
             };
             PlantBranching<TurtleState> branching = new PlantBranching<TurtleState>(() => stateStack.Push(state), (s) => stateStack.Push(s), stateStack.Pop);
 
-            foreach (string rule in plantString.Split()) {
+            foreach (string rule in LSystemGrammar.GetLSystemWords(plantString)) {
                 if (rule.Length == 0) {
                     continue;
                 }
@@ -56,6 +60,13 @@ namespace Default {
                 if (rules.TryGetValue(rule, out ICharacterRule characterRule)) {
                     Logger.Log(characterRule.Description);
                     characterRule.Apply(plant, branching, ref state);
+                } else if (LSystemGrammar.WordIsCommand(rule)) {
+                    Logger.LogVariables("Fuond rule", rule);
+                    string command = rule.Substring(1, rule.Length - 2);
+                    TextCommandParser commandParser = new TextCommandParser(state.Settings);
+                    commandParser.ApplyCommand(command);
+                    state.Settings = commandParser.GetSettings();
+
                 } else if (FailIfUnknownRule) {
                     throw new Exception($"Unknow rule encountered: {rule}");
                 }
@@ -63,6 +74,9 @@ namespace Default {
 
             return plant;
         }
+
+
+
         #endregion
 
         #region utility

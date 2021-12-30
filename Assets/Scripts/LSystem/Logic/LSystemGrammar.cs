@@ -7,7 +7,10 @@ using UnityEngine;
 namespace Default {
     public class LSystemGrammar {
         #region fields
-        private const char SPLITTER_CHAR = ' ';
+        public const char SPLITTER_CHAR = ' ';
+        public const char COMMAND_START = '"';
+        public const char COMMAND_END = '"';
+
         public int[] Axiom { get; private set; }
 
         private Dictionary<int, LSystemCharacter> characters;
@@ -17,15 +20,14 @@ namespace Default {
         // inefficient but soon deprecated anyway, no support for aliases
         // EL SPAGHETTO!! PLEASO FIXO! REQUIRO REFACTORO OF INPUT TYPE!
         public LSystemGrammar(UniqueStringIndexer indexer, string axiom, LSystemCharacterSetting[] commands) {
-            if (axiom == null || axiom.Length == 0) {
-                throw new System.Exception("Axiom cannot be null or empty");
-            }
+            ValidateAxiomOrCommand(axiom);
 
             UniqueStringIndexer localIndexer = new UniqueStringIndexer();
 
             RegisterStringIndex(axiom);
             foreach (LSystemCharacterSetting command in commands) {
                 Logger.Log($"Command: {command.Command}");
+                ValidateAxiomOrCommand(command.Command);
                 RegisterStringIndex(command.Command);
                 foreach (ProbabilityRule r in command.Rules) {
                     Logger.Log($"    Rule: {r.Rule}");
@@ -42,7 +44,7 @@ namespace Default {
                     LSystemCharacterSetting command = commands.First(c => c.Command.Equals(localCharIndex.Key));
 
                     LSystemCharacter character = new LSystemCharacter(localCharIndex.Key, charIndex, command.Rules.Select(r => {
-                        int[] ruleString = r.Rule.Split(SPLITTER_CHAR).Where(s => s.Length > 0).Select(s => indexer.SetAndGetIndex(s)).ToArray();
+                        int[] ruleString = GetLSystemWords(r.Rule).Where(s => s.Length > 0).Select(s => indexer.SetAndGetIndex(s)).ToArray();
                         return new LSystemRule(r.Probability, ruleString);
                     }).ToArray());
 
@@ -55,13 +57,13 @@ namespace Default {
             }
 
             List<int> axiomlist = new List<int>();
-            foreach (string word in axiom.Split(SPLITTER_CHAR).Where(s => s.Length > 0)) {
+            foreach (string word in GetLSystemWords(axiom).Where(s => s.Length > 0)) {
                 axiomlist.Add(indexer.SetAndGetIndex(word));
             }
             Axiom = axiomlist.ToArray();
 
             void RegisterStringIndex(string str) {
-                foreach (string word in str.Split(SPLITTER_CHAR).Where(s => s.Length > 0)) {
+                foreach (string word in GetLSystemWords(str).Where(s => s.Length > 0)) {
                     if (word.Length == 0) {
                         continue;
                     }
@@ -108,5 +110,58 @@ namespace Default {
             }
             return false;
         }
+
+        #region utility
+        public static void ValidateAxiomOrCommand(string axiom) {
+            if (axiom == null || axiom.Length == 0) {
+                throw new System.Exception("Axiom cannot be null or empty");
+            }
+            if (axiom.Contains(COMMAND_START) || axiom.Contains(COMMAND_END)) {
+                throw new System.Exception("Axiom cannot contain commands");
+            }
+
+        }
+
+        public static bool WordIsCommand(string word) {
+            return word[0] == COMMAND_START && word[word.Length - 1] == COMMAND_END;
+        }
+
+        public static List<string> GetLSystemWords(string plant) {
+            List<string> result = new List<string>();
+            StringBuilder sb = new StringBuilder();
+
+            void AddWord(bool isCommand) {
+                if (sb.Length > 0) {
+                    string cmd = isCommand ? $"{COMMAND_START}{sb.ToString()}{COMMAND_END}" : sb.ToString();
+                    result.Add(cmd);
+                    sb.Clear();
+                }
+            }
+
+            bool commandMode = false;
+
+            foreach (char c in plant) {
+                if (c == SPLITTER_CHAR && !commandMode) {
+                    AddWord(false);
+                    continue;
+                }
+                if (c == COMMAND_START && !commandMode) {
+                    commandMode = true;
+                    AddWord(false);
+                    continue;
+                }
+                if (c == COMMAND_END && commandMode) {
+                    commandMode = false;
+                    AddWord(true);
+                    continue;
+                }
+
+                sb.Append(c);
+            }
+            AddWord(false);
+
+            return result;
+        }
+        #endregion
     }
 }
