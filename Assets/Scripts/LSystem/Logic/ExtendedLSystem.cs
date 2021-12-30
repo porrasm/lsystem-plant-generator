@@ -17,8 +17,6 @@ namespace Default {
 
         private Dictionary<int, string> translation;
 
-
-
         public struct LSystemResult {
             public List<int> Result;
             public Dictionary<int, string> Translation;
@@ -63,8 +61,13 @@ namespace Default {
         }
 
         private void AddGrammar(string name, LSystemConfiguration lsystem) {
-            grammars.Add(name, new LSystemGrammar(wordIndexer, lsystem.Axiom, lsystem.CharacterDefinitions.ToArray()));
+            LSystemCharacterSetting[] characters = GetCharacters(lsystem);
+            grammars.Add(name, new LSystemGrammar(wordIndexer, lsystem.Axiom, lsystem.CharacterDefinitions.ToArray(), lsystem.Type));
         }
+
+        private LSystemCharacterSetting[] GetCharacters(LSystemConfiguration lsystem) => lsystem.Type == LSystemConfiguration.ConfigurationType.LSystem
+            ? lsystem.CharacterDefinitions.ToArray()
+            : new LSystemCharacterSetting[0];
         #endregion
 
         #region generation

@@ -19,8 +19,8 @@ namespace Default {
         #region constructor old
         // inefficient but soon deprecated anyway, no support for aliases
         // EL SPAGHETTO!! PLEASO FIXO! REQUIRO REFACTORO OF INPUT TYPE!
-        public LSystemGrammar(UniqueStringIndexer indexer, string axiom, LSystemCharacterSetting[] commands) {
-            ValidateAxiomOrCommand(axiom);
+        public LSystemGrammar(UniqueStringIndexer indexer, string axiom, LSystemCharacterSetting[] commands, LSystemConfiguration.ConfigurationType type) {
+            ValidateAxiomOrCommand(axiom, type == LSystemConfiguration.ConfigurationType.Alias);
 
             UniqueStringIndexer localIndexer = new UniqueStringIndexer();
 
@@ -112,14 +112,13 @@ namespace Default {
         }
 
         #region utility
-        public static void ValidateAxiomOrCommand(string axiom) {
+        public static void ValidateAxiomOrCommand(string axiom, bool allowCommand = false) {
             if (axiom == null || axiom.Length == 0) {
                 throw new System.Exception("Axiom cannot be null or empty");
             }
-            if (axiom.Contains(COMMAND_START) || axiom.Contains(COMMAND_END)) {
+            if (!allowCommand && (axiom.Contains(COMMAND_START) || axiom.Contains(COMMAND_END))) {
                 throw new System.Exception("Axiom cannot contain commands");
             }
-
         }
 
         public static bool WordIsCommand(string word) {

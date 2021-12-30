@@ -66,6 +66,7 @@ namespace Default {
         }
 
         public static Color ParseColor(string s) {
+            s = s.Replace("#", "0x");
             int v = Convert.ToInt32(s, 16);
             int r = (v >> 16) & 255;
             int g = (v >> 8) & 255;

@@ -18,8 +18,14 @@ namespace Default {
         }
 
         public void CreateGUI() {
+            if (LSystem.CharacterDefinitions == null) {
+                LSystem.CharacterDefinitions = new List<LSystemCharacterSetting>();
+            } 
             GeneralPlantSettingUI();
-            GrammarSettings();
+
+            if (LSystem.Type == LSystemConfiguration.ConfigurationType.LSystem) {
+                GrammarSettings();
+            }
         }
 
         private void GeneralPlantSettingUI() {
@@ -27,8 +33,29 @@ namespace Default {
             LSystem.LSystemName = CustomInspectorTools.TextField("System name", LSystem.LSystemName);
             if (isPrimary) {
                 LSystem.LSystemName = ExtendedLSystem.PRIMARY_LSYSTEM_NAME;
+                LSystem.Type = LSystemConfiguration.ConfigurationType.LSystem;
+            } else {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Toggle L-system type");
+                if (GUILayout.Button($"{LSystem.Type}")) {
+                    LSystem.Type = LSystem.Type == LSystemConfiguration.ConfigurationType.LSystem ? LSystemConfiguration.ConfigurationType.Alias : LSystemConfiguration.ConfigurationType.LSystem;
+                }
+                GUILayout.EndHorizontal();
             }
 
+            switch (LSystem.Type) {
+                case LSystemConfiguration.ConfigurationType.LSystem:
+                    LSystemGUI();
+                    break;
+                case LSystemConfiguration.ConfigurationType.Alias:
+                    AliasGUI();
+                    break;
+            }
+
+            CustomInspectorTools.EndArea();
+        }
+
+        private void LSystemGUI() {
             LSystem.Axiom = CustomInspectorTools.TextArea("Axiom", LSystem.Axiom, int.MaxValue, true);
             LSystem.Iterations = CustomInspectorTools.PositiveIntegerSliderWithArbitraryChoice("Iterations", "Too many iterations may cause extemely slow generation times.", ref iterationToggle, LSystem.Iterations, 15);
 
@@ -39,8 +66,11 @@ namespace Default {
             }
 
             LSystem.CaseSensitive = CustomInspectorTools.BoolField("Case sensitive", LSystem.CaseSensitive);
+        }
 
-            CustomInspectorTools.EndArea();
+
+        private void AliasGUI() {
+            LSystem.Axiom = CustomInspectorTools.TextArea("Alias", LSystem.Axiom, int.MaxValue, true);
         }
 
         #region grammar rules

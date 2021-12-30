@@ -8,8 +8,15 @@ namespace Default {
     [Serializable]
     public class LSystemConfiguration {
         #region fields
+        public enum ConfigurationType {
+            LSystem,
+            Alias
+        }
+
         [field: SerializeField]
         public string LSystemName { get; set; } = "name";
+        [field: SerializeField]
+        public ConfigurationType Type { get; set; }
 
         [field: SerializeField]
         public string Axiom { get; set; } = "f";
