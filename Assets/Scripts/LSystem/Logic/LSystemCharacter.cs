@@ -7,15 +7,18 @@ namespace Default {
         #region fields
         public string Name;
         public int Index;
+        public bool IsAlias;
         public LSystemRule[] Rules { get; private set; }
         private float probabilitySum;
         #endregion
 
-        public LSystemCharacter(string name, int index, params LSystemRule[] rules) {
+        public LSystemCharacter(string name, int index, bool isAlias, params LSystemRule[] rules) {
             Name = name;
             Index = index;
+            IsAlias = isAlias;
             Rules = rules;
             probabilitySum = 0;
+
             foreach (LSystemRule rule in rules) {
                 probabilitySum += rule.Probability;
             }

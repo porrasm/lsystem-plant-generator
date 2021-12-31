@@ -58,12 +58,42 @@ namespace Default {
                 if ((edgeFlags & (1 << i)) != 0) {
                     float offset = GetOffset(cube[EdgeConnection[i, 0]].Density, cube[EdgeConnection[i, 1]].Density);
 
-                    vertexColors[i] = state.Values[x, y, z].Color;
+                    vertexColors[i] = GetCorrectColor(x, y, z);
                     edgeVertex[i].x = x + (VertexOffset[EdgeConnection[i, 0], 0] + offset * EdgeDirection[i, 0]);
                     edgeVertex[i].y = y + (VertexOffset[EdgeConnection[i, 0], 1] + offset * EdgeDirection[i, 1]);
                     edgeVertex[i].z = z + (VertexOffset[EdgeConnection[i, 0], 2] + offset * EdgeDirection[i, 2]);
                 }
             }
+        }
+
+        private Color GetCorrectColor(int x, int y, int z) {
+            Color c = state.Values[x, y, z].Color;
+            if (c.a != 0) {
+                return c;
+            }
+
+            for (int i = 0; i <= 2; i++) {
+                for (int j = 0; j <= 2; j++) {
+                    for (int k = 0; k <= 2; k++) {
+                        int xi = x + i;
+                        int yi = y + j;
+                        int zi = z + k;
+
+                        if (
+                            xi >= 0 && xi < state.Values.Length.x
+                            && yi >= 0 && yi < state.Values.Length.y
+                            && zi >= 0 && zi < state.Values.Length.z
+                            ) {
+                            c = state.Values[xi, yi, zi].Color;
+                            if (c.a > 0) {
+                                return c;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return c;
         }
 
         private void SaveMeshData() {

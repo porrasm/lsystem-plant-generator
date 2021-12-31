@@ -12,7 +12,7 @@ namespace Default {
         public LSystemConfiguration PrimaryLSystem { get; set; }
 
         [field: SerializeField]
-        public List<LSystemBank> SubSystems { get; set; }
+        public List<LSystemBank> SubSystems { get; set; }  = new List<LSystemBank>();
         #endregion
 
         public ExtendedLSystem BuildLSystem() {

@@ -36,41 +36,36 @@ namespace Default {
         }
 
         #region generate
-        public Mesh Generate(string plantString, PlantGeneratorSettings3D initialSettings, int pointsPerMeter) {
-            PlantDensityMap plant = GeneratePlantRepresentation(plantString, initialSettings, pointsPerMeter);
+        public Mesh Generate(string plantString, TurtleState initialSettings, int pointsPerMeter, bool useSeed = false, int seed = 0) {
+            PlantDensityMap plant = GeneratePlantRepresentation(plantString, initialSettings, pointsPerMeter, useSeed, seed);
             return plant.GenerateMesh();
         }
 
-        private PlantDensityMap GeneratePlantRepresentation(string plantString, PlantGeneratorSettings3D initialSettings, int pointsPerMeter) {
+        private PlantDensityMap GeneratePlantRepresentation(string plantString, TurtleState state, int pointsPerMeter, bool useSeed, int seed) {
             PlantDensityMap plant = new PlantDensityMap(pointsPerMeter);
             Stack<TurtleState> stateStack = new Stack<TurtleState>();
 
-            TurtleState state = new TurtleState() {
-                Forward = Vector3.up,
-                Settings = initialSettings
-            };
             PlantBranching<TurtleState> branching = new PlantBranching<TurtleState>(() => stateStack.Push(state), (s) => stateStack.Push(s), stateStack.Pop);
 
-            foreach (string rule in LSystemGrammar.GetLSystemWords(plantString)) {
-                if (rule.Length == 0) {
-                    continue;
-                }
+            RNG.Seeded(useSeed, seed, () => {
+                foreach (string rule in LSystemGrammar.GetLSystemWords(plantString)) {
+                    if (rule.Length == 0) {
+                        continue;
+                    }
 
-                Logger.Log($"RUle: {rule}");
-                if (rules.TryGetValue(rule, out ICharacterRule characterRule)) {
-                    Logger.Log(characterRule.Description);
-                    characterRule.Apply(plant, branching, ref state);
-                } else if (LSystemGrammar.WordIsCommand(rule)) {
-                    Logger.LogVariables("Fuond rule", rule);
-                    string command = rule.Substring(1, rule.Length - 2);
-                    TextCommandParser commandParser = new TextCommandParser(state.Settings);
-                    commandParser.ApplyCommand(command);
-                    state.Settings = commandParser.GetSettings();
+                    if (rules.TryGetValue(rule, out ICharacterRule characterRule)) {
+                        characterRule.Apply(plant, branching, ref state);
+                    } else if (LSystemGrammar.WordIsCommand(rule)) {
+                        string command = rule.Substring(1, rule.Length - 2);
+                        TextCommandParser commandParser = new TextCommandParser(state);
+                        commandParser.ApplyCommand(command);
+                        state = commandParser.GetSettings();
 
-                } else if (FailIfUnknownRule) {
-                    throw new Exception($"Unknow rule encountered: {rule}");
+                    } else if (FailIfUnknownRule) {
+                        throw new Exception($"Unknow rule encountered: {rule}");
+                    }
                 }
-            }
+            });
 
             return plant;
         }
@@ -84,6 +79,7 @@ namespace Default {
             List<ICharacterRule> rules = new List<ICharacterRule>();
 
             rules.Add(new DefaultPlantRules.Forward());
+            rules.Add(new DefaultPlantRules.Sphere());
             rules.Add(new DefaultPlantRules.Branch());
             rules.Add(new DefaultPlantRules.Debranch());
             rules.Add(new DefaultPlantRules.XAngleAdd());

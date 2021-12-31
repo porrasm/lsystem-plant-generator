@@ -70,10 +70,6 @@ namespace Default {
             Vector2Int yRange = ExtendY;
             Vector2Int zRange = ExtendZ;
 
-            Logger.LogVariables("xr", xRange);
-            Logger.LogVariables("yr", yRange);
-            Logger.LogVariables("zr", zRange);
-
             // +1 from <=, +2 from extend
             B[,,] result = new B[CountX + 3, CountY + 3, CountZ + 3];
 

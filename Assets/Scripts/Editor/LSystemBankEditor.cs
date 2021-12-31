@@ -33,6 +33,7 @@ namespace Default {
 
         private void Validate() {
             if (Bank.LSystems == null) {
+                Logger.Log("Reset LSystems");
                 Bank.LSystems = new List<LSystemConfiguration>();
             }
             for (int i = 0; i < Bank.LSystems.Count; i++) {

@@ -10,7 +10,7 @@ namespace Default.CommandParser {
         public string Value;
 
         public Command(string cmdString) {
-            string[] cmd = cmdString.Split(' ');
+            string[] cmd = Parser.ParseWords(cmdString, ' ', '(', ')').ToArray();
             if (cmd.Length != 3) {
                 throw new Exception("Invalid command statement count: " + cmd.Length);
             }

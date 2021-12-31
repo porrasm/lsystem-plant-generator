@@ -6,41 +6,32 @@ using UnityEngine;
 namespace Default {
     [Serializable]
     public class LSystemCharacterSetting : ISetting {
-
         #region fields
-        [SerializeField]
-        private string command;
-
-        [SerializeField]
-        private List<ProbabilityRule> rules;
-
-        public string Command { get => command; set => command = value; }
-        public List<ProbabilityRule> Rules { get => rules; set => rules = value; }
+        [field: SerializeField]
+        public string Command { get; set; }
+        [field: SerializeField]
+        public List<ProbabilityRule> Rules { get; set; }
+        [field: SerializeField]
+        public bool IsAlias { get; set; }
         #endregion
 
         public LSystemCharacterSetting() {
-            rules = new List<ProbabilityRule>();
-            command = "";
+            Rules = new List<ProbabilityRule>();
+            Command = "";
         }
 
         public ProbabilityRule DefaultRule {
             get {
                 ProbabilityRule rule = new ProbabilityRule();
-                rule.Rule = command;
+                rule.Rule = Command;
                 return rule;
             }
         }
 
-        public void RemoveRule(int index) {
-            rules.RemoveAt(index);
-            if (rules.Count == 0) {
-                rules.Add(DefaultRule);
-            }
-        }
 
         public void Validate() {
-            command.ToLower();
-            foreach (ProbabilityRule r in rules) {
+            Command.ToLower();
+            foreach (ProbabilityRule r in Rules) {
                 r.Rule = r.Rule.ToLower();
             }
         }

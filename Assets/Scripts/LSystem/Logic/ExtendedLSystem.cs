@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 
 namespace Default {
+    [Serializable]
     public class ExtendedLSystem {
         #region fields
         public const string PRIMARY_LSYSTEM_NAME = "self";
@@ -21,6 +22,8 @@ namespace Default {
             public List<int> Result;
             public Dictionary<int, string> Translation;
         }
+
+        public LSystemConfiguration Primary => referenceSystems[PRIMARY_LSYSTEM_NAME];
         #endregion
 
         #region constructor
@@ -62,7 +65,7 @@ namespace Default {
 
         private void AddGrammar(string name, LSystemConfiguration lsystem) {
             LSystemCharacterSetting[] characters = GetCharacters(lsystem);
-            grammars.Add(name, new LSystemGrammar(wordIndexer, lsystem.Axiom, lsystem.CharacterDefinitions.ToArray(), lsystem.Type));
+            grammars.Add(name, new LSystemGrammar(wordIndexer, lsystem.Axiom, characters));
         }
 
         private LSystemCharacterSetting[] GetCharacters(LSystemConfiguration lsystem) => lsystem.Type == LSystemConfiguration.ConfigurationType.LSystem
@@ -74,7 +77,7 @@ namespace Default {
         public string BuildString(int maxRecursionLevel) {
             maxRecursionLevel = Mathf.Max(0, maxRecursionLevel);
             List<int> result = new List<int>();
-            BuildList(result, 0, maxRecursionLevel, referenceSystems[PRIMARY_LSYSTEM_NAME]);
+            RNG.Seeded(Primary.UseSeed, Primary.Seed, () => BuildList(result, 0, maxRecursionLevel, Primary));
             Logger.LogVariables("LSystem literal count", result.Count);
             return string.Join(" ", result.Select(lit => translation[lit]));
         }
@@ -84,7 +87,7 @@ namespace Default {
                 return;
             }
 
-            int[] lsystemResult = RNG.Seeded(lsystem.UseSeed, lsystem.Seed, () => LSystem.Iterate(GetIterator(lsystem)));
+            int[] lsystemResult = LSystem.Iterate(GetIterator(lsystem));
 
             foreach (int literal in lsystemResult) {
                 if (LiteralIsSubsystem(literal, out LSystemConfiguration subSystem)) {

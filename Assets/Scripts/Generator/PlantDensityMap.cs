@@ -9,7 +9,7 @@ namespace Default {
         public int PointsPerMeter { get; private set; }
         public float PointDistance { get; private set; }
 
-        public ExtendableArray3D<DensityPoint> Density { get; private set; } = new ExtendableArray3D<DensityPoint>(() => default);
+        public ExtendableArray3D<DensityPoint> Density { get; private set; } = new ExtendableArray3D<DensityPoint>(() => new DensityPoint(0, new Color(0, 0, 0, 0)));
         #endregion
 
         public PlantDensityMap(int pointsPerMeter) {
@@ -17,76 +17,83 @@ namespace Default {
             PointDistance = 1.0f / pointsPerMeter;
         }
 
-        public void DrawLine(Vector3 start, Vector3 end, Color c, float thickness) {
-            Logger.Log($"Draw line from {start} to {end} with thickness {thickness}");
-            Debug.DrawLine(start, end);
-            Vector3Int[] indexes = GetIndexesAroundLine(start, end, thickness);
-            foreach (Vector3Int index in indexes) {
+        #region new
+        public void DrawSphere(Vector3 location, float radius, float density, Color color) {
+            Vector3 center = location * PointsPerMeter;
+            Bounds bounds = new Bounds(center, Vector3.one * radius * PointsPerMeter);
+
+            float maxDistance = radius * PointsPerMeter;
+
+            for (int x = (int)bounds.min.x; x <= bounds.max.x; x++) {
+                for (int y = (int)bounds.min.y; y <= bounds.max.y; y++) {
+                    for (int z = (int)bounds.min.z; z <= bounds.max.z; z++) {
+                        Vector3Int point = new Vector3Int(x, y, z);
+                        float distanceFromSphereCenter = Vector3.Distance(point, center);
+                        if (distanceFromSphereCenter > maxDistance) {
+                            continue;
+                        }
+
+                        float value = 1 - Matht.Percentage(0, maxDistance, distanceFromSphereCenter);
+                        value *= ThinFactor(density);
+
+                        AddPoint(point, value, color);
+                    }
+                }
+            }
+        }
+
+        public void DrawLine(Vector3 start, Vector3 end, Color c, float thickness, float density) {
+            Cylinder cylinder = new Cylinder(start * PointsPerMeter, end * PointsPerMeter, thickness * PointsPerMeter);
+
+            // Logger.Log($"Draw line from {start} to {end} with thickness ({thickness})");
+            // Debug.DrawLine(start, end, Color.red, 10);
+
+            foreach (Vector3Int index in Matht.GetAllPointsInCylinder(cylinder)) {
                 // AddPoint(index, 1);
                 // continue;
                 Vector3 pos = PositionFromIndex(index);
+
+                float dis = PointDistanceFromLine(pos, start, end);
+                if (dis > thickness) {
+                    continue;
+                }
+
                 if (PointDistanceFromLine(pos, start, end) is var distance && distance <= thickness) {
                     // do something
                     float value = 1 - Matht.Percentage(0, thickness, distance);
+                    value *= ThinFactor(density);
                     AddPoint(index, value, c);
                 }
             }
         }
 
+        private float ThinFactor(float density) {
+            return RNG.Range(density, 1);
+        }
+        #endregion
+
+
         public void AddPoint(Vector3Int point, float value, Color c) {
             Vector3 debugPoint = point;
             debugPoint *= 0.2f;
             debugPoint += new Vector3Int(5, 0, 5);
-            Debug.DrawLine(debugPoint, debugPoint + Vector3.forward * 0.1f, Matht.Interpolate(new Color(0.5f, 0, 0, 1), Color.green, value, v => v));
+            // Debug.DrawLine(debugPoint, debugPoint + Vector3.forward * 0.1f, Matht.Interpolate(new Color(0.5f, 0, 0, 1), Color.green, value, v => v), 10);
             DensityPoint prev = Density[point];
             prev.Density = Mathf.Max(prev.Density, value);
             prev.Color = c;
             Density[point] = prev;
         }
 
-        // Maybe inefficient?
-        private Vector3Int[] GetIndexesAroundLine(Vector3 start, Vector3 end, float radius) {
-            HashSet<Vector3Int> indexes = new HashSet<Vector3Int>();
-
-            Vector3 lineDirection = end - start;
-
-            radius = Mathf.Max(radius, PointDistance);
-
-            float lineLength = Vector3.Distance(start, end);
-            float incrementAmount = Mathf.Sqrt(2) * radius;
-            incrementAmount = radius;
-
-            for (int i = 0; i * incrementAmount is var currentDistance && currentDistance < lineLength; ++i) {
-                Vector3 center = start + (currentDistance * lineDirection);
-                Bounds box = new Bounds(center, new Vector3(radius, radius, radius));
-                IndexesFromBounds(box, indexes);
-            }
-
-            return indexes.ToArray();
-        }
-
         public float PointDistanceFromLine(Vector3 point, Vector3 start, Vector3 end) {
+            float min = Mathf.Min(Vector3.Distance(point, start), Vector3.Distance(point, end));
             Vector3 d = (end - start) / Vector3.Distance(end, start);
             Vector3 v = point - start;
             float t = Vector3.Dot(v, d);
             Vector3 P = start + (t * d);
-            return Vector3.Distance(P, point);
+            return Mathf.Min(min, Vector3.Distance(P, point));
         }
 
-        private void IndexesFromBounds(Bounds bounds, HashSet<Vector3Int> indexes) {
-            Vector3Int startIndex = IndexFromPosition(bounds.min);
-            Vector3Int endIndex = IndexFromPosition(bounds.max);
-
-            for (int x = startIndex.x; x <= endIndex.x; ++x) {
-                for (int y = startIndex.y; y <= endIndex.y; ++y) {
-                    for (int z = startIndex.z; z <= endIndex.z; ++z) {
-                        indexes.Add(new Vector3Int(x, y, z));
-                    }
-                }
-            }
-        }
-
-        public Vector3Int IndexFromPosition(Vector3 position) {
+        public Vector3Int IndexFromPositionMin(Vector3 position) {
             position *= PointsPerMeter;
             return new Vector3Int((int)position.x, (int)position.y, (int)position.z);
         }

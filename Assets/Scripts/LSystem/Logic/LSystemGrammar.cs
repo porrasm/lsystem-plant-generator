@@ -19,8 +19,8 @@ namespace Default {
         #region constructor old
         // inefficient but soon deprecated anyway, no support for aliases
         // EL SPAGHETTO!! PLEASO FIXO! REQUIRO REFACTORO OF INPUT TYPE!
-        public LSystemGrammar(UniqueStringIndexer indexer, string axiom, LSystemCharacterSetting[] commands, LSystemConfiguration.ConfigurationType type) {
-            ValidateAxiomOrCommand(axiom, type == LSystemConfiguration.ConfigurationType.Alias);
+        public LSystemGrammar(UniqueStringIndexer indexer, string axiom, LSystemCharacterSetting[] commands) {
+            ValidateAxiomOrCommand(axiom, true);
 
             UniqueStringIndexer localIndexer = new UniqueStringIndexer();
 
@@ -43,7 +43,7 @@ namespace Default {
                     // is command
                     LSystemCharacterSetting command = commands.First(c => c.Command.Equals(localCharIndex.Key));
 
-                    LSystemCharacter character = new LSystemCharacter(localCharIndex.Key, charIndex, command.Rules.Select(r => {
+                    LSystemCharacter character = new LSystemCharacter(localCharIndex.Key, charIndex, command.IsAlias, command.Rules.Select(r => {
                         int[] ruleString = GetLSystemWords(r.Rule).Where(s => s.Length > 0).Select(s => indexer.SetAndGetIndex(s)).ToArray();
                         return new LSystemRule(r.Probability, ruleString);
                     }).ToArray());
@@ -51,7 +51,7 @@ namespace Default {
                     characters.Add(charIndex, character);
                 } catch (System.Exception e) {
                     // not command, by default does not change in iteration
-                    LSystemCharacter character = new LSystemCharacter(localCharIndex.Key, charIndex, new LSystemRule(0, charIndex));
+                    LSystemCharacter character = new LSystemCharacter(localCharIndex.Key, charIndex, false, new LSystemRule(0, charIndex));
                     characters.Add(charIndex, character);
                 }
             }
@@ -77,12 +77,17 @@ namespace Default {
 
         public string LiteralToString(int literal) => characters[literal].Name;
 
-        public List<int> PerformTransformation(List<int> literals) {
+        public List<int> PerformTransformation(List<int> literals, bool transformAliases) {
             List<int> newLiterals = new List<int>(literals.Count);
 
             foreach (int literal in literals) {
                 if (!GetCharacter(literal, out LSystemCharacter character)) {
                     throw new System.Exception("Undefined character");
+                }
+
+                if (character.IsAlias && !transformAliases) {
+                    newLiterals.Add(literal);
+                    continue;
                 }
 
                 foreach (int newLiteral in character.GetRule(RNG.Float).Transformation) {
@@ -126,40 +131,7 @@ namespace Default {
         }
 
         public static List<string> GetLSystemWords(string plant) {
-            List<string> result = new List<string>();
-            StringBuilder sb = new StringBuilder();
-
-            void AddWord(bool isCommand) {
-                if (sb.Length > 0) {
-                    string cmd = isCommand ? $"{COMMAND_START}{sb.ToString()}{COMMAND_END}" : sb.ToString();
-                    result.Add(cmd);
-                    sb.Clear();
-                }
-            }
-
-            bool commandMode = false;
-
-            foreach (char c in plant) {
-                if (c == SPLITTER_CHAR && !commandMode) {
-                    AddWord(false);
-                    continue;
-                }
-                if (c == COMMAND_START && !commandMode) {
-                    commandMode = true;
-                    AddWord(false);
-                    continue;
-                }
-                if (c == COMMAND_END && commandMode) {
-                    commandMode = false;
-                    AddWord(true);
-                    continue;
-                }
-
-                sb.Append(c);
-            }
-            AddWord(false);
-
-            return result;
+            return Parser.ParseWords(plant, SPLITTER_CHAR, COMMAND_START, COMMAND_END);
         }
         #endregion
     }

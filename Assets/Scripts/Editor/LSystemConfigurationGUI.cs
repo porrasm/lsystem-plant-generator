@@ -20,7 +20,7 @@ namespace Default {
         public void CreateGUI() {
             if (LSystem.CharacterDefinitions == null) {
                 LSystem.CharacterDefinitions = new List<LSystemCharacterSetting>();
-            } 
+            }
             GeneralPlantSettingUI();
 
             if (LSystem.Type == LSystemConfiguration.ConfigurationType.LSystem) {
@@ -110,6 +110,13 @@ namespace Default {
             string charString = CustomInspectorTools.TextField("Command", "" + rule.Command);
             GUILayout.EndHorizontal();
 
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Toggle rule type");
+            if (GUILayout.Button(rule.IsAlias ? "Alias" : "Iteration command")) {
+                rule.IsAlias = !rule.IsAlias;
+            }
+            GUILayout.EndHorizontal();
+
             rule.Command = charString;
 
             if (rule.Command.Length == 0) {
@@ -142,6 +149,7 @@ namespace Default {
                     LSystem.CharacterDefinitions.RemoveAt(index);
                 }
             }
+
 
             GUILayout.EndVertical();
         }
